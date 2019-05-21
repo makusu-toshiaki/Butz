@@ -1,2 +1,4 @@
 hunter/.ipynb_checkpoints/
 hunter/downloads/
+nlp/packages
+*.db
