@@ -3,10 +3,3 @@ https://www.khanacademy.org/math/early-math/cc-early-math-counting-topic
 
 パイザ
 https://paiza.jp/challenges
-
-pip install pivottablejs
-pip install pandas_profiling
-pip install pixiedust
-pip install seaborn
-pip install pandas
-pip install matplotlib
