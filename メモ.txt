@@ -3,7 +3,6 @@ https://www.khanacademy.org/math/early-math/cc-early-math-counting-topic
 
 パイザ
 https://paiza.jp/challenges
-<<<<<<< HEAD
 
 ipaexg
 https://ipafont.ipa.go.jp/node26#jp
@@ -13,5 +12,5 @@ https://qiita.com/ekzemplaro/items/c98c7f6698f130b55d53
 
 wordcloudオプション
 https://www.karada-good.net/analyticsr/r-79
-=======
->>>>>>> 622ca4656d1f0a4d75b28b65824c6f8876c7ce7d
+
+
