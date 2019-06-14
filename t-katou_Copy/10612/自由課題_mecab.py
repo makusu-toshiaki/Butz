@@ -1,5 +1,17 @@
 import MeCab as mc
 from sklearn.feature_extraction.text import TfidfVectorizer
+import sqlite3
+
+conn = None
+
+# データベースに接続する
+def connect():
+    global conn
+    conn = sqlite3.connect("./test.db")
+    
+# コネクションを断つ
+def close():
+    conn.close()
 
 # TF_IDFに関わる関数を定義
 # テーブルを作成
@@ -70,36 +82,37 @@ def mecab_analysis(texts):
             break
     return output
 
-# 分かち書きしたリストのリストを作成
-wakati_all = []
-for review in get_review():
-    wakati_all.append(mecab_analysis(review[0]))
+def TF_IDF():
+    # 分かち書きしたリストのリストを作成
+    wakati_all = []
+    for review in get_review():
+        wakati_all.append(mecab_analysis(review[0]))
 
-# ストップワーズ
-stop_words=["(",")","これ","こと","よう","一","的","評価","総合","ところ","の","作","回","視聴","それ","?)","さ","ここ","&","!","?","もの","作品","ん"]
+    # ストップワーズ
+    stop_words=["(",")","これ","こと","よう","一","的","評価","総合","ところ","の","作","回","視聴","それ","?)","さ","ここ","&","!","?","もの","作品","ん"]
 
-# dataには分かち書きをjoinで合わせたテキストを入力。doc_idsはdataと同じ長さ(1~3000)の整数が入る
-data = []
-doc_ids = []
-for wakati in wakati_all:
-    delete_stop = [word for word in wakati if word not in stop_words]
-    data.append(" ".join(delete_stop))
+    # dataには分かち書きをjoinで合わせたテキストを入力。doc_idsはdataと同じ長さ(1~3000)の整数が入る
+    data = []
+    doc_ids = []
+    for wakati in wakati_all:
+        delete_stop = [word for word in wakati if word not in stop_words]
+        data.append(" ".join(delete_stop))
 
-doc_ids = [length+1 for length in range(len(data))]
+    doc_ids = [length+1 for length in range(len(data))]
 
-vectorizer = TfidfVectorizer(analyzer="word", max_df = 0.9)
-vecs = vectorizer.fit_transform(data)
+    vectorizer = TfidfVectorizer(analyzer="word", max_df = 0.9)
+    vecs = vectorizer.fit_transform(data)
 
-# TF-IDFテーブルを作成
-try:
-    connect()
-    create_table_TF_IDF()
-finally:
-    close()
+    # TF-IDFテーブルを作成
+    try:
+        connect()
+        create_table_TF_IDF()
+    finally:
+        close()
 
-for doc_id, vec, title in zip(doc_ids, vecs.toarray(),get_title()):
-    text = []
-    for w_id, tfidf in sorted(enumerate(vec), key=lambda x: x[1],reverse=True)[:10]:
-        lemma = vectorizer.get_feature_names()[w_id]
-        text.append(lemma)
-    load_TF_IDF(title[0]," ".join(text))
+    for doc_id, vec, title in zip(doc_ids, vecs.toarray(),get_title()):
+        text = []
+        for w_id, tfidf in sorted(enumerate(vec), key=lambda x: x[1],reverse=True)[:10]:
+            lemma = vectorizer.get_feature_names()[w_id]
+            text.append(lemma)
+        load_TF_IDF(title[0]," ".join(text))

@@ -7,8 +7,7 @@ conn = None
 
 # データベースに接続する
 def connect():
-    global conn
-    conn = sqlite3.connect("./anime.db")
+    conn = sqlite3.connect("./test.db")
     
 # コネクションを断つ
 def close():
@@ -32,8 +31,8 @@ def next_page(url,next_url,i):
     try:
         connect()
         r = requests.get(url+next_url)
-        html_soup = BeautifulSoup(r.text, 'html.parser')
-        new_url_all = [r["href"] for r in html_soup.find("td", class_ ="article container").find_all("a")]
+        html_soup = BeautifulSoup(r.content, 'html.parser')
+        new_url_all = [r["href"] for r in html_soup.find("div", class_ ="article container").find_all("a")]
         next_url = new_url_all[len(new_url_all)-1]
         if i != 0:
             del new_url_all[0:2]
@@ -47,17 +46,17 @@ def next_page(url,next_url,i):
         close()
 
 
+def scraping():
+    # URL設定。アニメ評価新着順に設定
+    url = 'https://sakuhindb.com'
+    next_url = "/anime/anime.html"
 
-# URL設定。アニメ評価新着順に設定
-url = 'https://sakuhindb.com'
-next_url = "/anime/anime.html"
+    # テーブルを作成し、30ページ文のアニメのを格納。1ページ100URLなので、全部で3000URL
+    try:
+        connect()
+        create_table_Url()
+    finally:
+        close()
 
-# テーブルを作成し、30ページ文のアニメのを格納。1ページ100URLなので、全部で3000URL
-try:
-    connect()
-    create_table_Url()
-finally:
-    close()
-
-for i in range(30):
-    next_url = next_page(url,next_url,i)
+    for i in range(30):
+        next_url = next_page(url,next_url,i)

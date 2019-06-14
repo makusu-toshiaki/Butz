@@ -1,4 +1,18 @@
 import sqlite3
+import 自由課題_url_scraping
+import 自由課題_review_scraping
+import 自由課題_mecab
+
+# スクレイピングしたデータをデータベースに格納するための関数定義
+conn = None
+
+# データベースに接続する
+def connect():
+    global conn
+    conn = sqlite3.connect("./test.db")
+# コネクションを断つ
+def close():
+    conn.close()
 
 def rate_from_title(title):
     try:
@@ -44,9 +58,16 @@ def title_from_word(word):
         close()
 
 print("プログラムを開始します")
-
-if y != input("スクレイピングはしてありますか？(y or n):):
-    pass
+if "n" == input("TF-IDFのデータベースはありますか？(y or n):"):
+    if "n" == input("URLはありますか？(y or n):"):
+        自由課題_url_scraping.scraping()
+        自由課題_review_scraping.scraping()
+        自由課題_mecab.TF_IDF()
+    elif "n" == input("レビューはありますか？(y or n):"):
+        自由課題_review_scraping.scraping()
+        自由課題_mecab.TF_IDF()
+    else:
+        自由課題_mecab.TF_IDF()
 
 title_input=input("タイトルを入力してください：")
 f = float(input("評価の誤差を入力してください(小数点)："))

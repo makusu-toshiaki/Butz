@@ -9,7 +9,7 @@ conn = None
 # データベースに接続する
 def connect():
     global conn
-    conn = sqlite3.connect("./anime.db")
+    conn = sqlite3.connect("./test.db")
     
 # コネクションを断つ
 def close():
@@ -41,7 +41,7 @@ def get_url():
         close()
 
 # load_Reviewsの略。評判分析を行い、評価を出す。タイトル、レビュー、評価をデータベースに格納する関数を定義
-def l_R(url,g_u):
+def sub_load_Reviews(url,g_u):
     r = requests.get(url+g_u)
     res_soup = BeautifulSoup(r.content, 'html.parser')
     f_table = res_soup.find("td", class_="padding_cell").find_all("div", itemprop="reviewBody")
@@ -49,6 +49,7 @@ def l_R(url,g_u):
     for text in f_table:
         text_all += text.text
 
+    o = oseti.Analyzer()
     rate_all=[]
     for rate in o.analyze(text_all):
         if int(rate) != 0:
@@ -65,15 +66,14 @@ def l_R(url,g_u):
     finally:
         close()
 
-url = 'https://sakuhindb.com'
-# 評判分析をoでできるようにする
-o = oseti.Analyzer()
+def scraping():
+    url = 'https://sakuhindb.com'
 
-# テーブルを作成し、タイトル・レビュー・評価をデータベースに格納する
-try:
-    connect()
-    create_table_Reviews()
-finally:
-    close()
-for g_u in get_url():
-    l_R(url,g_u[0])
+    # テーブルを作成し、タイトル・レビュー・評価をデータベースに格納する
+    try:
+        connect()
+        create_table_Reviews()
+    finally:
+        close()
+    for g_u in get_url():
+        sub_load_Reviews(url,g_u[0])
