@@ -30,7 +30,7 @@ def load_Reviews(title, review, rate):
     conn.commit()
 
 # データベースに格納されているURLを取り出す関数を定義
-def get_url():
+def get_url_all():
     try:
         connect()
         cursor = conn.cursor()
@@ -40,9 +40,9 @@ def get_url():
     finally:
         close()
 
-# load_Reviewsの略。評判分析を行い、評価を出す。タイトル、レビュー、評価をデータベースに格納する関数を定義
-def sub_load_Reviews(url,g_u):
-    r = requests.get(url+g_u)
+# 評判分析を行い、評価を出す。タイトル、レビュー、評価をデータベースに格納する関数を定義
+def sub_load_Reviews(url,get_url):
+    r = requests.get(url+get_url)
     res_soup = BeautifulSoup(r.content, 'html.parser')
     f_table = res_soup.find("td", class_="padding_cell").find_all("div", itemprop="reviewBody")
     text_all=""
@@ -67,7 +67,7 @@ def sub_load_Reviews(url,g_u):
         close()
 
 def scraping():
-    url = 'https://sakuhindb.com'
+    start_url = 'https://sakuhindb.com'
 
     # テーブルを作成し、タイトル・レビュー・評価をデータベースに格納する
     try:
@@ -75,5 +75,5 @@ def scraping():
         create_table_Reviews()
     finally:
         close()
-    for g_u in get_url():
-        sub_load_Reviews(url,g_u[0])
+    for url in get_url_all():
+        sub_load_Reviews(start_url,url[0])

@@ -1,7 +1,10 @@
+# import文
 import MeCab as mc
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 import sqlite3
 
+# スクレイピングしたデータをデータベースに格納するための関数定義
 conn = None
 
 # データベースに接続する
@@ -13,54 +16,12 @@ def connect():
 def close():
     conn.close()
 
-# TF_IDFに関わる関数を定義
-# テーブルを作成
-def create_table_TF_IDF():
-    # DROP=消す.
-    conn.execute("DROP TABLE IF EXISTS TF_IDF")
-    conn.execute("""CREATE TABLE TF_IDF (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT,
-            text TEXT
-    )""")
-
-# アニメタイトルと重要な単語を格納する関数を定義
-def load_TF_IDF(title,text):
-    try:
-        connect()
-        conn.execute("INSERT INTO TF_IDF (title,text) VALUES (?,?)", (title,text))
-        conn.commit()
-    finally:
-        close()
-
-# 全タイトルを取り出す関数を定義
-def get_title():
-    try:
-        connect()
-        cursor = conn.cursor()
-        res = cursor.execute("SELECT title FROM Reviews")
-        res = cursor.fetchall()
-        return res
-    finally:
-        close()
-
 # 全レビューを取り出す関数を定義
 def get_review():
     try:
         connect()
         cursor = conn.cursor()
         res = cursor.execute("SELECT review FROM Reviews")
-        res = cursor.fetchall()
-        return res
-    finally:
-        close()
-
-# 指定したアニメのレビューを取り出す関数を定義
-def get_review_solo(title):
-    try:
-        connect()
-        cursor = conn.cursor()
-        res = cursor.execute("SELECT review FROM Reviews WHERE title = ?",(title,))
         res = cursor.fetchall()
         return res
     finally:
@@ -75,14 +36,35 @@ def mecab_analysis(texts):
     while node:
         if node.surface != "":  # ヘッダとフッタを除外
             word_type = node.feature.split(",")[0]
-            if word_type in ['名詞']:
+            if word_type in ['名詞','動詞']:
                 output.append(node.surface)
         node = node.next
         if node is None:
             break
     return output
 
-def TF_IDF():
+# iつのタイトルを取り出す関数を定義
+def id_from_title(title):
+    try:
+        connect()
+        cursor = conn.cursor()
+        res = cursor.execute("SELECT id FROM Reviews WHERE title = ?",(title,))
+        res = cursor.fetchone()
+        return res
+    finally:
+        close()
+
+def title_from_id(id):
+    try:
+        connect()
+        cursor = conn.cursor()
+        res = cursor.execute("SELECT title FROM Reviews WHERE id = ?",(id,))
+        res = cursor.fetchone()
+        return res
+    finally:
+        close()
+
+def Word2Vec(input_title):
     # 分かち書きしたリストのリストを作成
     wakati_all = []
     for review in get_review():
@@ -100,19 +82,12 @@ def TF_IDF():
 
     doc_ids = [length+1 for length in range(len(data))]
 
-    vectorizer = TfidfVectorizer(analyzer="word", max_df = 0.9)
+    vectorizer = TfidfVectorizer(analyzer="word", max_df=0.9)
     vecs = vectorizer.fit_transform(data)
 
-    # TF-IDFテーブルを作成
-    try:
-        connect()
-        create_table_TF_IDF()
-    finally:
-        close()
-
-    for doc_id, vec, title in zip(doc_ids, vecs.toarray(),get_title()):
-        text = []
-        for w_id, tfidf in sorted(enumerate(vec), key=lambda x: x[1],reverse=True)[:10]:
-            lemma = vectorizer.get_feature_names()[w_id]
-            text.append(lemma)
-        load_TF_IDF(title[0]," ".join(text))
+    sim = cosine_similarity(vecs)
+    
+    docs = zip(doc_ids,sim[id_from_title(input_title)[0]-1])
+    for doc_ids,similarity in sorted(docs,key=lambda x: x[1], reverse = True)[:10]:
+        title = title_from_id(doc_ids)[0]
+        print(doc_ids,title,similarity)
