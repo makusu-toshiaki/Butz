@@ -3,6 +3,7 @@ import MeCab as mc
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import sqlite3
+import tfidf
 
 # スクレイピングしたデータをデータベースに格納するための関数定義
 conn = None
@@ -43,7 +44,7 @@ def mecab_analysis(texts):
             break
     return output
 
-# iつのタイトルを取り出す関数を定義
+# 1つのタイトルを取り出す関数を定義
 def id_from_title(title):
     try:
         connect()
@@ -64,22 +65,9 @@ def title_from_id(id):
     finally:
         close()
 
-def Word2Vec(input_title):
-    # 分かち書きしたリストのリストを作成
-    wakati_all = []
-    for review in get_review():
-        wakati_all.append(mecab_analysis(review[0]))
-
-    # ストップワーズ
-    stop_words=["ストーリー","描写","_","ーー","番組","ストーリ","前半","後半","展開","シーン","用語","ちゃん","さん","op","ed","(",")","これ","こと","よう","一","的","評価","総合","ところ","の","作","回","視聴","それ","?)","さ","ここ","原作","設定","&","!","?","もの","作品","ん"]
-
+def same(input_title):
     # dataには分かち書きをjoinで合わせたテキストを入力。doc_idsはdataと同じ長さ(1~3000)の整数が入る
-    data = []
-    doc_ids = []
-    for wakati in wakati_all:
-        delete_stop = [word for word in wakati if word not in stop_words]
-        data.append(" ".join(delete_stop))
-
+    data = [review[0] for review in tfidf.get_mecab()]
     doc_ids = [length+1 for length in range(len(data))]
 
     vectorizer = TfidfVectorizer(analyzer="word", max_df=0.9)
@@ -90,4 +78,4 @@ def Word2Vec(input_title):
     docs = zip(doc_ids,sim[id_from_title(input_title)[0]-1])
     for doc_ids,similarity in sorted(docs,key=lambda x: x[1], reverse = True)[:10]:
         title = title_from_id(doc_ids)[0]
-        print(doc_ids,title,similarity)
+        print("id:{:4}|cos:{:0<5.3}".format(doc_ids,similarity)+"|"+title)

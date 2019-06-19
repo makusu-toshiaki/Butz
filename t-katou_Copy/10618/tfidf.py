@@ -66,6 +66,16 @@ def get_review_solo(title):
     finally:
         close()
 
+def get_mecab():
+    try:
+        connect()
+        cursor = conn.cursor()
+        res = cursor.execute("SELECT wakati FROM mecab")
+        res = cursor.fetchall()
+        return res
+    finally:
+        close()
+
 # 分かち書き
 def mecab_analysis(texts):
     t = mc.Tagger("")
@@ -83,21 +93,11 @@ def mecab_analysis(texts):
     return output
 
 def TF_IDF():
-    # 分かち書きしたリストのリストを作成
-    wakati_all = []
-    for review in get_review():
-        wakati_all.append(mecab_analysis(review[0]))
-
     # ストップワーズ
     stop_words=["ストーリー","描写","_","ーー","番組","ストーリ","前半","後半","展開","シーン","用語","ちゃん","さん","op","ed","(",")","これ","こと","よう","一","的","評価","総合","ところ","の","作","回","視聴","それ","?)","さ","ここ","原作","設定","&","!","?","もの","作品","ん"]
 
     # dataには分かち書きをjoinで合わせたテキストを入力。doc_idsはdataと同じ長さ(1~3000)の整数が入る
-    data = []
-    doc_ids = []
-    for wakati in wakati_all:
-        delete_stop = [word for word in wakati if word not in stop_words]
-        data.append(" ".join(delete_stop))
-
+    data = [review[0] for review in get_mecab()]
     doc_ids = [length+1 for length in range(len(data))]
 
     vectorizer = TfidfVectorizer(analyzer="word", max_df = 0.9)
@@ -112,7 +112,10 @@ def TF_IDF():
 
     for doc_id, vec, title in zip(doc_ids, vecs.toarray(),get_title()):
         text = []
-        for w_id, tfidf in sorted(enumerate(vec), key=lambda x: x[1],reverse=True)[:10]:
+        for w_id, tfidf in sorted(enumerate(vec), key=lambda x: x[1],reverse=True):
             lemma = vectorizer.get_feature_names()[w_id]
-            text.append(lemma)
+            if lemma not in stop_words:
+                text.append(lemma)
+            if len(text) >= 10:
+                break
         load_TF_IDF(title[0]," ".join(text))

@@ -70,21 +70,21 @@ if "n" == input("TF-IDFのデータベースはありますか？(y or n):"):
     else:
         自由課題_mecab.TF_IDF()
 
-title_input = input("タイトルを入力してください：")
+title_input = input("好きなアニメのタイトルを入力してください：")
 while 自由課題_Word2Vec.id_from_title(title_input) == None:
     print("そのタイトルはデータベースにありません")
-    title_input = input("タイトルを入力してください：")
+    title_input = input("好きなアニメのタイトルを入力してください：")
 
 decimal = float(input("評価の誤差を入力してください(小数)："))
 while decimal < 0:
-    print("プラスの値を入れてください：")
+    print("プラスの数値を入れてください：")
     decimal = float(input("評価の誤差を入力してください(小数)："))
 
 print("似ているアニメ")
 自由課題_Word2Vec.Word2Vec(title_input)
 
 print()
-print("おすすめアニメは")
+print("おすすめアニメ")
 success = []
 all_word = [other_word[0].split() for other_word in get_all_word()]
 
