@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import sqlite3
 import oseti
+from joblib import Parallel,delayed
 
 # スクレイピングしたデータをデータベースに格納するための関数定義
 conn = None
@@ -66,8 +67,35 @@ def sub_load_Reviews(url,get_url):
     finally:
         close()
 
+def request(url):
+    r = requests.get(url)
+    res_soup = BeautifulSoup(r.content, 'html.parser')
+    table = res_soup.find("td", class_="padding_cell").find_all("div", itemprop="reviewBody")
+
+    text_all=""
+    for text in table:
+        text_all += text.text
+    title = res_soup.find("span", itemprop="name").text
+
+    return [title,text_all]
+
+def get_rate(title,text):
+    o = oseti.Analyzer()
+    rate_all=[rate for rate in o.analyze(text_all) if rate != 0]
+    
+    if len(rate_all)==0:
+        rate = 0.0
+    else:
+        rate=sum(rate_all)/len(rate_all)
+        
+    try:
+        connect()
+        load_Reviews(title, text_all, rate)
+    finally:
+        close()
+
 def scraping():
-    start_url = 'https://sakuhindb.com'
+    print("レビューのスクレイピング開始")
 
     # テーブルを作成し、タイトル・レビュー・評価をデータベースに格納する
     try:
@@ -75,8 +103,11 @@ def scraping():
         create_table_Reviews()
     finally:
         close()
-    for url in get_url_all():
-        sub_load_Reviews(start_url,url[0])
+    
+    url_all = ['https://sakuhindb.com'+url[0] for url in get_url_all()]
+    # titleとレビュー
+    title_text = Parallel(n_jobs=3)([delayed(request)(url) for url in url_all])
+    Parallel(n_jobs=3)([delayed(get_rate)(tt[0],tt[1]) for tt in title_text])
 
 # 分かち書き
 def mecab_analysis(texts):
@@ -94,7 +125,6 @@ def mecab_analysis(texts):
             break
     return output
 
-# sub_mecab
 # テーブルを作成
 def create_table_mecab():
     # DROP=消す.

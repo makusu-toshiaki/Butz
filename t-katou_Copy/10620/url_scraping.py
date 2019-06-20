@@ -46,6 +46,7 @@ def next_page(url,next_url,i):
 
 
 def scraping():
+    print("URLのスクレイピング開始")
     # URL設定。アニメ評価新着順に設定
     url = 'https://sakuhindb.com'
     next_url = "/anime/anime.html"
