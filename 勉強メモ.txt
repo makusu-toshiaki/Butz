@@ -2,36 +2,18 @@ Model:DBに関する
 View:HTML
 Controller:処理
 
-*解決法が見つかりました*
-まず、コントロールパネルを開き、プログラム→プログラムと機能の中に
-Microsoft SQL Server 2014 Express LocalDB
-Microsoft SQL Server 2016 LocalDB
-があるか確認します。
+@using(Html.BeginForm(
+    "Edit", // アクション名
+    "Result", // コントローラー名
+    new { id = "H15A1", charset = "utf8" },
+    FormMethod.Post,
+    new { id ="fm", enctype="multipart/form-data" }
+    ))
+{
 
-*無ければ* LocalDBをインストールします。
-https://www.microsoft.com/ja-JP/download/details.aspx?id=42299
-に移動し、ダウンロードを押します。
-LocalDB 64BIT\SqlLocalDB.msiにチェックし、次へを押します。
-(これでダウンロードは完了)
-LocalDB 64BIT\SqlLocalDB.msiを起動して、インストールします。
+}
+@{
+    ViewBag.Title = "Index";
+}
 
-Visual Studioを開く
-Visual Studioメニューのツール→オプション
-データベースツール
-データ接続
-SQL Server インスタンス名 (既定は空白)(S):に
-(LocalDB)\MSSQLLocalDBを入力
-OKを選択し、終了
-
-サーバーエクスプローラーを開く
-(表示→サーバーエクスプローラー)
-データ接続を右クリック
-接続の追加
-データベースファイル名を入力
-(例：C:\Users\t-katou\Documents\list.mdf)
-OKを選択し、終了
-
-最後に、Web.configの
-<connectionStrings></connectionStrings>の間を
-<add name="MvcBasicContext" connectionString="Data Source=(LocalDb)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\MvcBasic.mdf;Integrated Security=True" providerName="System.Data.SqlClient" />
-に変えるとできます。
+<h2>Index</h2>
