@@ -2,18 +2,3 @@ Model:DBに関する
 View:HTML
 Controller:処理
 
-@using(Html.BeginForm(
-    "Edit", // アクション名
-    "Result", // コントローラー名
-    new { id = "H15A1", charset = "utf8" },
-    FormMethod.Post,
-    new { id ="fm", enctype="multipart/form-data" }
-    ))
-{
-
-}
-@{
-    ViewBag.Title = "Index";
-}
-
-<h2>Index</h2>

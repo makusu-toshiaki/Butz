@@ -1,0 +1,106 @@
+// 新規作成
+// a '.tsx' file enables JSX support in the TypeScript compiler,
+// for more information see the following page on the TypeScript wiki:
+// https://github.com/Microsoft/TypeScript/wiki/JSX
+import * as React from "react";
+import { Dialog, Toolbar, ToolbarGroup, ToolbarTitle, RaisedButton, TextField } from "material-ui";
+
+declare var notice_msg: number;
+
+interface INoticeChangeProps extends React.Props<{}> {
+    changeCurrentNotice: (e: string) => void;
+    currentNotice: string;
+    noticemessage: string;
+    messageColor: string;
+}
+
+/**
+ * お知らせ編集画面用ルートコンポーネント
+ * 
+ * 
+ * @class NoticeChange
+ * @extends {React.Component<INoticeChangeProps, {}>}
+ */
+export default class NoticeChange extends React.Component<INoticeChangeProps, {}> {
+
+    changeCurrentNotice(e: any): void {
+        this.props.changeCurrentNotice(e.target.value);
+    }
+
+    /**
+     * レンダリング用メソッド
+     * お知らせ編集画面を表示する
+     * 
+     * @returns
+     * 
+     * @memberOf NoticeChange
+     */
+    render(): JSX.Element {
+        return <div className="g-react-notice">
+            <form method="post" action="">
+                <table className="g-react-supply">
+                    <tr>
+                        <td>事業者</td>
+                        <td>
+                            <label>
+                                <input type="text" list="sampleDatalistId"/>
+                            </label>
+                            <datalist id="sampleDatalistId">
+                                <option value="加藤"></option>
+                                <option value="巻須"></option>
+                                <option value="稔明"></option>
+                            </datalist>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>更新対象種類</td>
+                        <td>
+                            <label>
+                                <input type="text" list="sampleDatalistId" required/>
+                            </label>
+                            <datalist id="sampleDatalistId">
+                                <option value="供給区域"></option>
+                                <option value="統合ブロック"></option>
+                                <option value="単位ブロック"></option>
+                            </datalist>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>図形(.shp)</td>
+                        <td><input type="file" required></input></td>
+                    </tr>
+                    <tr>
+                        <td>図形IDX(.shx)</td>
+                        <td><input type="file" required></input></td>
+                    </tr>
+                    <tr>
+                        <td>属性(.dbf)</td>
+                        <td><input type="file" required></input></td>
+                    </tr>
+                    <tr>
+                        <td>予約状況</td>
+                        <td>
+                            <td>
+                                <tr>供給区域　　:</tr>
+                                <tr>統合ブロック:</tr>
+                                <tr>単位ブロック:</tr>
+                            </td>
+                            <td>
+                                <tr><input className="form-control" name="currentNotice" onChange={this.changeCurrentNotice.bind(this)} ></input></tr>
+                                <tr><input className="form-control" name="currentNotice" onChange={this.changeCurrentNotice.bind(this)} ></input></tr>
+                                <tr><input className="form-control" name="currentNotice" onChange={this.changeCurrentNotice.bind(this)} ></input></tr>
+                            </td>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <td><button>登録保存</button></td>
+                            <td className="right"><button>登録取消</button></td>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>;
+    }
+}
