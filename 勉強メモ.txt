@@ -1,4 +1,0 @@
-Model:DBに関する
-View:HTML
-Controller:処理
-
