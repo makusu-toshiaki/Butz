@@ -5,10 +5,13 @@ Computer Programmingコースを全部やったら、プログラミング力が
 ipaexg
 https://ipafont.ipa.go.jp/node26#jp
 
+木鶏会
+【１】特集総リード「後世に伝えたいこと」
+【２】「知覧からのメッセージ」
+【３】「人生は、いつもこれから」
 
 ttcに必要なもの
-靴
-段ボール
+スリッパ
 下敷き
 割りばし
 粉ジュース
@@ -37,11 +40,6 @@ React
 　2　1.5h
 　3　1.45h
 
-聞くところ
-G-Reactリプレース21P:データベースは複数存在するのか？
-飛び地とは？
-ブリンク:目立たせるという意味で使われているのか？
-
 これからの仕事
 CWP クラウド化
 
@@ -57,6 +55,30 @@ METI	経済産業省（Ministry of Economy, Trade and Industry）
 JGA	日本ガス協会（Japan Gas Association）
 jishin.net	地震情報を配信する外部サービス
 
+常にアップデートするもの
+MicrosoftUpdate
+Adobe Reader/Adobe Flash Player
+Thunderbird
 
-事業者による供給ブロックの更新機能の整備
-供給ブロックの位置情報については、事業者が随時更新しているため、頻度や効率化の観点から事業者自らが更新できるようシステムを整備する。
+SELECT pg_cancel_backend(14204);
+15836
+14204
+
+SELECT l.pid, db.datname, c.relname, l.locktype, l.mode
+FROM pg_locks l
+        LEFT JOIN pg_class c ON l.relation=c.relfilenode
+        LEFT JOIN pg_database db ON l.database = db.oid
+WHERE c.relname like '%jga%'
+ORDER BY l.pid;
+
+
+SELECT l.pid, db.datname, c.relname, l.locktype, l.mode
+FROM pg_locks l
+        LEFT JOIN pg_class c ON l.relation=c.relfilenode
+        LEFT JOIN pg_database db ON l.database = db.oid
+ORDER BY l.pid;
+
+管理者実行
+サービス再起動
+
+チケット番号2970
